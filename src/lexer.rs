@@ -75,6 +75,14 @@ impl Lexer {
                         }
                         _ => return Token::new(TokenType::TokEq),
                     },
+                    '!' => match self.peek_next() {
+                        Some('=') => {
+                            let _ = self.get_next();
+                            self.state = LexerState::LexerStart;
+                            return Token::new(TokenType::TokNoteq);
+                        }
+                        _ => return Token::new(TokenType::TokNot),
+                    },
                     '{' => return Token::new(TokenType::TokLcurl),
                     '}' => return Token::new(TokenType::TokRcurl),
                     ';' => return Token::new(TokenType::TokSemi),
@@ -166,6 +174,7 @@ mod tests {
         assert_eq!(lexer.next_token().tok_type, TokenType::TokMul);
         assert_eq!(lexer.next_token().tok_type, TokenType::TokGt);
         assert_eq!(lexer.next_token().tok_type, TokenType::TokLt);
+        assert_eq!(lexer.next_token().tok_type, TokenType::TokNot);
         assert_eq!(lexer.next_token().tok_type, TokenType::TokEof);
     }
 
@@ -189,6 +198,7 @@ mod tests {
         assert_eq!(lexer.next_token().tok_type, TokenType::TokGte);
         assert_eq!(lexer.next_token().tok_type, TokenType::TokLte);
         assert_eq!(lexer.next_token().tok_type, TokenType::TokIseq);
+        assert_eq!(lexer.next_token().tok_type, TokenType::TokNoteq);
         assert_eq!(lexer.next_token().tok_type, TokenType::TokEof);
     }
 

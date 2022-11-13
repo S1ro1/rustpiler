@@ -25,6 +25,8 @@ pub enum TokenType {
     TokString,
     TokSemi,
     TokEof,
+    TokNot,
+    TokNoteq,
 }
 
 #[derive(Debug)]
