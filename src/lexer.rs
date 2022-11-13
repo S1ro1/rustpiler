@@ -6,6 +6,7 @@ pub enum LexerState {
     LexerStart,
     LexerIdentif,
     LexerFloat,
+    LexerString,
 }
 
 #[derive(Debug)]
@@ -47,6 +48,7 @@ impl Lexer {
                     '{' => return Token::new(TokenType::TokLcurl),
                     '}' => return Token::new(TokenType::TokRcurl),
                     ';' => return Token::new(TokenType::TokSemi),
+                    '\"' => self.state = LexerState::LexerString,
                     cn => {
                         if cn.is_alphabetic() {
                             self.state = LexerState::LexerIdentif;
@@ -69,7 +71,7 @@ impl Lexer {
                         self.state = LexerState::LexerFloat;
                     } else {
                         let token: Token = Token::new_with_int(TokenType::TokInt, &self.tmp_buffer);
-                        self.tmp_buffer = Vec::new();
+                        self.tmp_buffer.clear();
                         self.curr_index -= 1;
                         self.state = LexerState::LexerStart;
                         return token;
@@ -81,7 +83,7 @@ impl Lexer {
                     } else {
                         let tok_type: TokenType = Token::parse_keyword(&self.tmp_buffer);
                         let token: Token = Token::new_with_string(tok_type, &self.tmp_buffer);
-                        self.tmp_buffer = Vec::new();
+                        self.tmp_buffer.clear();
                         self.curr_index -= 1;
                         self.state = LexerState::LexerStart;
                         return token;
@@ -91,11 +93,23 @@ impl Lexer {
                     if c.is_numeric() {
                         self.tmp_buffer.push(c);
                     } else {
-                        let token: Token = Token::new_with_float(TokenType::TokInt, &self.tmp_buffer);
-                        self.tmp_buffer = Vec::new();
+                        let token: Token =
+                            Token::new_with_float(TokenType::TokInt, &self.tmp_buffer);
+                        self.tmp_buffer.clear();
                         self.curr_index -= 1;
                         self.state = LexerState::LexerStart;
                         return token;
+                    }
+                }
+                LexerState::LexerString => {
+                    if c == '\"' {
+                        let token: Token =
+                            Token::new_with_string(TokenType::TokString, &self.tmp_buffer);
+                        self.tmp_buffer.clear();
+                        self.state = LexerState::LexerStart;
+                        return token;
+                    } else {
+                        self.tmp_buffer.push(c);
                     }
                 }
             };

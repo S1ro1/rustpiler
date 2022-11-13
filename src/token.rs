@@ -14,6 +14,7 @@ pub enum TokenType {
     TokUnknown,
     TokInt,
     TokIdentif,
+    TokString,
     TokSemi,
 }
 
@@ -35,10 +36,10 @@ impl Token {
         }
     }
 
-    pub fn new_with_string(tok_type: TokenType, buffer: &Vec<char>) -> Self {
+    pub fn new_with_identif(tok_type: TokenType, buffer: &Vec<char>) -> Self {
         let buffer: String = buffer.into_iter().collect();
         Token {
-            tok_type: tok_type,
+            tok_type,
             str: Some(buffer),
             int: None,
             flt: None,
@@ -52,7 +53,7 @@ impl Token {
             .expect(&format!("[LEX ERR]: Can't parse {} into integer!", buffer));
 
         Token {
-            tok_type: tok_type,
+            tok_type,
             str: None,
             int: Some(num),
             flt: None,
@@ -66,10 +67,21 @@ impl Token {
             .expect(&format!("[LEX ERR]: Can't parse {} into float!", buffer));
 
         Token {
-            tok_type: tok_type,
+            tok_type,
             str: None,
             int: None,
             flt: Some(num),
+        }
+    }
+
+    pub fn new_with_string(tok_type: TokenType, buffer: &Vec<char>) -> Self {
+        let buffer: String = buffer.into_iter().collect();
+
+        Token {
+            tok_type,
+            str: Some(buffer),
+            int: None,
+            flt: None,
         }
     }
 
