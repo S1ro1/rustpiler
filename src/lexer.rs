@@ -1,4 +1,4 @@
-use crate::token::*;
+use crate::{token::*, utils};
 
 #[derive(Debug)]
 pub enum LexerState {
@@ -20,7 +20,7 @@ impl Lexer {
         Lexer {
             curr_index: 0,
             tmp_buffer: Vec::new(),
-            source: source,
+            source,
             state: LexerState::LexerStart,
         }
     }
@@ -50,6 +50,8 @@ impl Lexer {
                         } else if cn.is_ascii_digit() {
                             self.state = LexerState::LexerInt;
                             self.tmp_buffer.push(cn);
+                        } else if cn.is_whitespace() {
+                            continue;
                         } else {
                             return Token::new(TokenType::TokUnknown);
                         }
@@ -59,8 +61,7 @@ impl Lexer {
                     if c.is_numeric() {
                         self.tmp_buffer.push(c);
                     } else {
-                        let token: Token =
-                            Token::new_with_buffer(TokenType::TokInt, self.tmp_buffer.clone());
+                        let token: Token = Token::new_with_int(TokenType::TokInt, &self.tmp_buffer);
                         self.tmp_buffer = Vec::new();
                         self.curr_index -= 1;
                         self.state = LexerState::LexerStart;
@@ -68,11 +69,11 @@ impl Lexer {
                     }
                 }
                 LexerState::LexerIdentif => {
-                    if c.is_alphabetic() {
+                    if c.is_alphanumeric() {
                         self.tmp_buffer.push(c);
                     } else {
-                        let token: Token =
-                            Token::new_with_buffer(TokenType::TokIdentif, self.tmp_buffer.clone());
+                        let tok_type: TokenType = Token::parse_keyword(&self.tmp_buffer);
+                        let token: Token = Token::new_with_string(tok_type, &self.tmp_buffer);
                         self.tmp_buffer = Vec::new();
                         self.curr_index -= 1;
                         self.state = LexerState::LexerStart;
