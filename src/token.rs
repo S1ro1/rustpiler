@@ -1,35 +1,44 @@
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum TokenType {
     TokPlus,
     TokMinus,
     TokDiv,
     TokMul,
     TokGt,
+    TokGte,
     TokLt,
+    TokLte,
     TokEq,
+    TokIseq,
     TokLcurl,
     TokRcurl,
+    TokLparen,
+    TokRparen,
+    TokLbrace,
+    TokRbrace,
     TokIf,
     TokElse,
     TokUnknown,
     TokInt,
+    TokFloat,
     TokIdentif,
     TokString,
     TokSemi,
+    TokEof,
 }
 
 #[derive(Debug)]
 pub struct Token {
-    tok_type: TokenType,
-    str: Option<String>,
-    int: Option<i32>,
-    flt: Option<f32>,
+    pub tok_type: TokenType,
+    pub str: Option<String>,
+    pub int: Option<i32>,
+    pub flt: Option<f32>,
 }
 
 impl Token {
     pub fn new(tok_type: TokenType) -> Self {
         Token {
-            tok_type: tok_type,
+            tok_type,
             str: None,
             int: None,
             flt: None,

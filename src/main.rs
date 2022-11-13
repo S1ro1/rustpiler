@@ -1,13 +1,17 @@
+use token::TokenType;
+
 mod lexer;
 mod token;
 mod utils;
 
 fn main() {
-    let file = utils::chars("test.si".to_string());
+    let file = utils::chars("tests/simple_op.si".to_string());
 
     let mut lexer = lexer::Lexer::new(file);
 
-    while lexer.curr_index != lexer.source.len() {
-        println!("{:?}", lexer.next_token());
+    let mut token = lexer.next_token();
+
+    while token.tok_type != TokenType::TokEof {
+        token = lexer.next_token();
     }
 }
