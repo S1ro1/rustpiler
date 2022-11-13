@@ -4,6 +4,8 @@ pub enum TokenType {
     TokMinus,
     TokDiv,
     TokMul,
+    TokGt,
+    TokLt,
     TokEq,
     TokLcurl,
     TokRcurl,
@@ -12,6 +14,7 @@ pub enum TokenType {
     TokUnknown,
     TokInt,
     TokIdentif,
+    TokSemi,
 }
 
 #[derive(Debug)]
@@ -19,6 +22,7 @@ pub struct Token {
     tok_type: TokenType,
     str: Option<String>,
     int: Option<i32>,
+    flt: Option<f32>,
 }
 
 impl Token {
@@ -27,6 +31,7 @@ impl Token {
             tok_type: tok_type,
             str: None,
             int: None,
+            flt: None,
         }
     }
 
@@ -36,6 +41,7 @@ impl Token {
             tok_type: tok_type,
             str: Some(buffer),
             int: None,
+            flt: None,
         }
     }
 
@@ -49,8 +55,24 @@ impl Token {
             tok_type: tok_type,
             str: None,
             int: Some(num),
+            flt: None,
         }
     }
+
+    pub fn new_with_float(tok_type: TokenType, buffer: &Vec<char>) -> Self {
+        let buffer: String = buffer.into_iter().collect();
+        let num: f32 = buffer
+            .parse::<f32>()
+            .expect(&format!("[LEX ERR]: Can't parse {} into float!", buffer));
+
+        Token {
+            tok_type: tok_type,
+            str: None,
+            int: None,
+            flt: Some(num),
+        }
+    }
+
     pub fn parse_keyword(chars: &Vec<char>) -> TokenType {
         let val: String = chars.into_iter().collect();
 
