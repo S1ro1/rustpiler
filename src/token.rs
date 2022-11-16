@@ -19,10 +19,10 @@ pub enum TokenType {
     TokIf,
     TokElse,
     TokUnknown,
-    TokInt,
-    TokFloat,
-    TokIdentif,
-    TokString,
+    TokInt { val: i32 },
+    TokFloat { val: f32 },
+    TokIdentif { val: String },
+    TokString { val: String },
     TokSemi,
     TokEof,
     TokNot,
@@ -32,77 +32,54 @@ pub enum TokenType {
 #[derive(Debug)]
 pub struct Token {
     pub tok_type: TokenType,
-    pub str: Option<String>,
-    pub int: Option<i32>,
-    pub flt: Option<f32>,
 }
 
 impl Token {
     pub fn new(tok_type: TokenType) -> Self {
-        Token {
-            tok_type,
-            str: None,
-            int: None,
-            flt: None,
-        }
+        Token { tok_type }
     }
 
-    pub fn new_with_identif(tok_type: TokenType, buffer: &Vec<char>) -> Self {
-        let buffer: String = buffer.into_iter().collect();
-        Token {
-            tok_type,
-            str: Some(buffer),
-            int: None,
-            flt: None,
-        }
+    pub fn new_with_identif(tok_type: TokenType) -> Self {
+        Token { tok_type: tok_type }
     }
 
-    pub fn new_with_int(tok_type: TokenType, buffer: &Vec<char>) -> Self {
+    pub fn new_with_int(buffer: &Vec<char>) -> Self {
         let buffer: String = buffer.into_iter().collect();
         let num: i32 = buffer
             .parse::<i32>()
             .expect(&format!("[LEX ERR]: Can't parse {} into integer!", buffer));
 
         Token {
-            tok_type,
-            str: None,
-            int: Some(num),
-            flt: None,
+            tok_type: TokenType::TokInt { val: num },
         }
     }
 
-    pub fn new_with_float(tok_type: TokenType, buffer: &Vec<char>) -> Self {
+    pub fn new_with_float(buffer: &Vec<char>) -> Self {
         let buffer: String = buffer.into_iter().collect();
         let num: f32 = buffer
             .parse::<f32>()
             .expect(&format!("[LEX ERR]: Can't parse {} into float!", buffer));
 
         Token {
-            tok_type,
-            str: None,
-            int: None,
-            flt: Some(num),
+            tok_type: TokenType::TokFloat { val: num },
         }
     }
 
-    pub fn new_with_string(tok_type: TokenType, buffer: &Vec<char>) -> Self {
+    pub fn new_with_string(buffer: &Vec<char>) -> Self {
         let buffer: String = buffer.into_iter().collect();
 
         Token {
-            tok_type,
-            str: Some(buffer),
-            int: None,
-            flt: None,
+            tok_type: TokenType::TokString { val: buffer },
         }
     }
 
     pub fn parse_keyword(chars: &Vec<char>) -> TokenType {
-        let val: String = chars.into_iter().collect();
+        let val: String = chars.iter().collect::<String>();
 
         match val.as_str() {
             "if" => return TokenType::TokIf,
             "else" => return TokenType::TokElse,
-            _ => return TokenType::TokIdentif,
+            _ => return TokenType::TokIdentif { val },
         }
     }
 }

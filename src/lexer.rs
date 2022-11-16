@@ -112,7 +112,7 @@ impl Lexer {
                         self.tmp_buffer.push(c);
                         self.state = LexerState::LexerFloat;
                     } else {
-                        let token: Token = Token::new_with_int(TokenType::TokInt, &self.tmp_buffer);
+                        let token: Token = Token::new_with_int(&self.tmp_buffer);
                         self.tmp_buffer.clear();
                         self.curr_index -= 1;
                         self.state = LexerState::LexerStart;
@@ -124,7 +124,7 @@ impl Lexer {
                         self.tmp_buffer.push(c);
                     } else {
                         let tok_type: TokenType = Token::parse_keyword(&self.tmp_buffer);
-                        let token: Token = Token::new_with_identif(tok_type, &self.tmp_buffer);
+                        let token: Token = Token::new_with_identif(tok_type);
                         self.tmp_buffer.clear();
                         self.curr_index -= 1;
                         self.state = LexerState::LexerStart;
@@ -135,8 +135,7 @@ impl Lexer {
                     if c.is_numeric() {
                         self.tmp_buffer.push(c);
                     } else {
-                        let token: Token =
-                            Token::new_with_float(TokenType::TokFloat, &self.tmp_buffer);
+                        let token: Token = Token::new_with_float(&self.tmp_buffer);
                         self.tmp_buffer.clear();
                         self.curr_index -= 1;
                         self.state = LexerState::LexerStart;
@@ -145,8 +144,7 @@ impl Lexer {
                 }
                 LexerState::LexerString => {
                     if c == '\"' {
-                        let token: Token =
-                            Token::new_with_string(TokenType::TokString, &self.tmp_buffer);
+                        let token: Token = Token::new_with_string(&self.tmp_buffer);
                         self.tmp_buffer.clear();
                         self.state = LexerState::LexerStart;
                         return token;
@@ -208,12 +206,20 @@ mod tests {
         let mut lexer: Lexer = Lexer::new(text);
 
         let mut token = lexer.next_token();
-        assert_eq!(token.tok_type, TokenType::TokIdentif);
-        assert_eq!(token.str, Some("a".to_string()));
+        assert_eq!(
+            token.tok_type,
+            TokenType::TokIdentif {
+                val: "a".to_string()
+            }
+        );
 
         token = lexer.next_token();
-        assert_eq!(token.tok_type, TokenType::TokIdentif);
-        assert_eq!(token.str, Some("a25".to_string()));
+        assert_eq!(
+            token.tok_type,
+            TokenType::TokIdentif {
+                val: "a25".to_string()
+            }
+        );
 
         assert_eq!(lexer.next_token().tok_type, TokenType::TokEof);
     }
@@ -225,16 +231,18 @@ mod tests {
 
         let mut token = lexer.next_token();
 
-        assert_eq!(token.tok_type, TokenType::TokString);
-        assert_eq!(token.str, Some("a".to_string()));
+        assert_eq!(
+            token.tok_type,
+            TokenType::TokString {
+                val: "a".to_string()
+            }
+        );
 
         token = lexer.next_token();
-        assert_eq!(token.tok_type, TokenType::TokFloat);
-        assert_eq!(token.flt, Some(4.2));
+        assert_eq!(token.tok_type, TokenType::TokFloat { val: 4.2 as f32 });
 
         token = lexer.next_token();
-        assert_eq!(token.tok_type, TokenType::TokInt);
-        assert_eq!(token.int, Some(42));
+        assert_eq!(token.tok_type, TokenType::TokInt { val: 42 as i32 });
 
         assert_eq!(lexer.next_token().tok_type, TokenType::TokEof);
     }
@@ -246,10 +254,50 @@ mod tests {
         let mut lexer: Lexer = Lexer::new(text);
 
         let results: Vec<TokenType> = vec![
-            TokIdentif, TokEq, TokInt, TokSemi, TokIdentif, TokEq, TokInt, TokSemi, TokIdentif,
-            TokEq, TokInt, TokSemi, TokIf, TokIdentif, TokLt, TokIdentif, TokLcurl, TokIdentif,
-            TokEq, TokInt, TokSemi, TokRcurl, TokElse, TokLcurl, TokIdentif, TokEq, TokFloat,
-            TokSemi, TokRcurl, TokEof,
+            TokIdentif {
+                val: "a".to_string(),
+            },
+            TokEq,
+            TokInt { val: 5 },
+            TokSemi,
+            TokIdentif {
+                val: "b".to_string(),
+            },
+            TokEq,
+            TokInt { val: 3 },
+            TokSemi,
+            TokIdentif {
+                val: "c".to_string(),
+            },
+            TokEq,
+            TokInt { val: 0 },
+            TokSemi,
+            TokIf,
+            TokIdentif {
+                val: "a".to_string(),
+            },
+            TokLt,
+            TokIdentif {
+                val: "b".to_string(),
+            },
+            TokLcurl,
+            TokIdentif {
+                val: "c".to_string(),
+            },
+            TokEq,
+            TokInt { val: 0 },
+            TokSemi,
+            TokRcurl,
+            TokElse,
+            TokLcurl,
+            TokIdentif {
+                val: "c".to_string(),
+            },
+            TokEq,
+            TokFloat { val: 1.1 },
+            TokSemi,
+            TokRcurl,
+            TokEof,
         ];
 
         let mut token = lexer.next_token();
