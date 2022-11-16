@@ -1,6 +1,9 @@
+use parser::Parser;
 use token::TokenType;
 
 mod lexer;
+mod parser;
+mod symtable;
 mod token;
 mod utils;
 
@@ -9,10 +12,14 @@ fn main() {
 
     let mut lexer = lexer::Lexer::new(file);
 
-    let mut token = lexer.next_token();
+    let mut parser: Parser = parser::Parser::new(lexer);
 
-    while token.tok_type != TokenType::TokEof {
-        token = lexer.next_token();
-        println!("{:?}", token);
-    }
+    parser.rule_prog().unwrap();
+
+    // let mut token = lexer.next_token();
+
+    // while token.tok_type != TokenType::TokEof {
+    //     token = lexer.next_token();
+    //     println!("{:?}", token);
+    // }
 }
