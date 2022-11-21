@@ -14,7 +14,7 @@ fn main() {
 
     let mut parser: Parser = parser::Parser::new(lexer);
 
-    parser.rule_prog().unwrap();
+    parser.rule_prog();
 
     // let mut token = lexer.next_token();
 

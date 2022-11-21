@@ -1,4 +1,4 @@
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Clone)]
 pub enum TokenType {
     TokPlus,
     TokMinus,
@@ -27,6 +27,12 @@ pub enum TokenType {
     TokEof,
     TokNot,
     TokNoteq,
+}
+
+impl PartialEq for TokenType {
+    fn eq(&self, other: &Self) -> bool {
+        std::mem::discriminant(self) == std::mem::discriminant(other)
+    }
 }
 
 #[derive(Debug)]

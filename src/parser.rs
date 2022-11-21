@@ -50,28 +50,30 @@ impl Parser {
         }
     }
 
-    pub fn check_next(&mut self, tok_type: TokenType) {
-        self.token = self.lexer.next_token();
+    pub fn check_token(&mut self, tok_type: TokenType) -> Result<bool, String> {
         if self.token.tok_type == tok_type {
-            return;
+            self.token = self.lexer.next_token();
+            return Ok(true);
         } else {
+            self.token = self.lexer.next_token();
+            return Err(format!("Expected: {:?} but received: {:?}", tok_type, self.token.tok_type));
         }
     }
 
-    pub fn rule_prog(&mut self) -> Result<i32, ParseError> {
-        if self.token.tok_type
-            != (TokenType::TokIdentif {
-                val: "a".to_string(),
-            })
-        {
-            Err(ParseError::new(
-                self.token.tok_type.clone(),
-                TokenType::TokIdentif {
-                    val: "-".to_string(),
-                },
-            ))
+    pub fn token_is_operator(&mut self) -> Result<bool, String> {
+        let ret: bool = self.token.tok_type == TokenType::TokPlus || self.token.tok_type == TokenType::TokMinus || self.token.tok_type == TokenType::TokDiv || self.token.tok_type == TokenType::TokMul || self.token.tok_type == TokenType::TokEq;
+
+        if ret {
+            self.token = self.lexer.next_token();
+            return Ok(ret);
         } else {
-            Ok(0)
+            return Err(format!("Token isn't operator: {:?}", self.token));
         }
+    }
+
+    pub fn rule_prog(&mut self) {
+        self.check_token(TokenType::TokIdentif { val: "a".to_string() }).unwrap();
+        self.token_is_operator().unwrap();
+        self.check_token(TokenType::TokInt { val: -1 }).unwrap();
     }
 }
